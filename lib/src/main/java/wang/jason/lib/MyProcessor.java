@@ -7,12 +7,17 @@ import com.squareup.javapoet.TypeSpec;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-
-
 import javax.lang.model.element.*;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
+
+
+
+/*import javax.lang.model.element.*;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;*/
 import java.util.LinkedHashSet;
 import java.util.Set;
 @AutoService(Processor.class)
@@ -49,7 +54,7 @@ public class MyProcessor extends AbstractProcessor {
 
         for (Element element : roundEnvironment.getElementsAnnotatedWith(PsiTableHeaderAnnotation.class)){
 
-            if(element.getKind()!=ElementKind.FIELD){
+            if(element.getKind()!= ElementKind.FIELD){
                 error(element,"only field can be annotated");
                 return true;
             }
