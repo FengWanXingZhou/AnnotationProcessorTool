@@ -223,12 +223,19 @@ public class GenerateCodeTool {
                 .addModifiers(Modifier.PUBLIC,Modifier.STATIC)
                 .addStatement("return new $T()",storeImplClassName)
                 .build();
-
+        ClassName testClassName = ClassName.get("io.reactivex","Observable");
+        MethodSpec test = MethodSpec.methodBuilder("create"
+                +STORE_SUFFIX)
+                .returns(testClassName)
+                .addModifiers(Modifier.PUBLIC,Modifier.STATIC)
+                .addStatement("return new $T()",testClassName)
+                .build();
         TypeSpec factoryClass = TypeSpec.classBuilder(factoryAnnotationClass.getSimpleTypeName()+STORE_SUFFIX
                 +FACTORY_SUFFIX)
                 .addModifiers(Modifier.PUBLIC)
 
                 .addMethod(create)
+                //.addMethod(test)
                 .build();
         JavaFile javaFile = JavaFile.builder(factoryAnnotationClass.getPackageName(), factoryClass)
                 .build();
