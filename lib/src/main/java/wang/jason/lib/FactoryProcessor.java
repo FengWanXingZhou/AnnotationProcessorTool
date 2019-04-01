@@ -60,18 +60,18 @@ public class FactoryProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
         try {
-            log(null,"process start");
+            //log(null,"process start");
             if(CollectionUtils.isEmpty(roundEnvironment.getElementsAnnotatedWith(FactoryAnnotation.class))){
                 return true;
             }
-            log(null,"process start 1");
+            //log(null,"process start 1");
 
             for (Element element : roundEnvironment.getElementsAnnotatedWith(FactoryAnnotation.class)) {
-                log(null,"process start  2");
+                //log(null,"process start  2");
                 if(!validAnnotationCheck(element,element.getAnnotation(FactoryAnnotation.class))){
                     return true;
                 }
-                log(null,"process start  3");
+                //log(null,"process start  3");
                 if(!validClassCheck(element)){
                     return true;
                 }
@@ -116,7 +116,7 @@ public class FactoryProcessor extends AbstractProcessor {
 
 
         if(StringUtils.isEmpty(factoryAnnotation.route())){
-            error(element, "class %s route is empty ", element.getSimpleName());
+            error(element, "class %s annotation route is empty ", element.getSimpleName());
             return false;
         }
 
@@ -181,8 +181,8 @@ public class FactoryProcessor extends AbstractProcessor {
 
         TypeElement superClassTypeElement = mElementsUtil.getTypeElement(qualifiedSuperClassName);
         if(superClassTypeElement.getKind() != INTERFACE){
-            error(rootElement, "class %s type is not interface",
-                    rootElement.getSimpleName());
+            error(rootElement, "class %s annotation type %s is not interface",
+                    rootElement.getSimpleName(),superClassTypeElement.getSimpleName());
             return false;
         }
         TypeElement rootTypeElement = (TypeElement) rootElement;
