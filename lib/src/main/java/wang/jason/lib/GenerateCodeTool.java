@@ -1,13 +1,14 @@
 package wang.jason.lib;
 
+import com.google.common.collect.Iterables;
 import com.squareup.javapoet.*;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.util.Elements;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.Boolean.TRUE;
 
@@ -50,7 +51,46 @@ public class GenerateCodeTool {
 
 
         MethodSpec create = null;
-        if(factoryAnnotationClass.getType() == null){
+        List<ParameterSpec> parameterSpecList = new ArrayList<>();
+        for(int i =0;i<factoryAnnotationClass.getParametersQualifiedName().size();i++){
+
+            String parameterQualifiedName = factoryAnnotationClass.getParametersQualifiedName().get(i);
+            String parameterSimpleName = factoryAnnotationClass.getParametersSimpleName().get(i);
+
+            parameterSimpleName = parameterSimpleName.substring(0,1).toLowerCase()
+                        +parameterSimpleName.substring(1);
+            parameterSpecList.add(ParameterSpec.builder(TypeName.get(elementUtils
+                            .getTypeElement(parameterQualifiedName).asType())
+                    ,parameterSimpleName)
+                    .build());
+        }
+        Iterable<ParameterSpec> parameterSpecIterable = (Iterable<ParameterSpec>)parameterSpecList;
+        /*if(parameterSpecList.size()>0){
+            create = MethodSpec.methodBuilder("create"+className)
+                    .returns(TypeName.get(elementUtils.getTypeElement(factoryAnnotationClass
+                            .getQualifiedSuperClassName()).asType()))
+                    .addModifiers(Modifier.PUBLIC,Modifier.ABSTRACT)
+                    .addParameters(parameterSpecIterable)
+                    .build();
+        }else{
+            create = MethodSpec.methodBuilder("create"+className)
+                    .returns(TypeName.get(elementUtils.getTypeElement(factoryAnnotationClass
+                            .getQualifiedSuperClassName()).asType()))
+                    .addModifiers(Modifier.PUBLIC,Modifier.ABSTRACT)
+                    //.addParameter(String.class,"route")
+                    .build();
+        }*/
+
+        create = MethodSpec.methodBuilder("create"+className)
+                .returns(TypeName.get(elementUtils.getTypeElement(factoryAnnotationClass
+                        .getQualifiedSuperClassName()).asType()))
+                .addModifiers(Modifier.PUBLIC,Modifier.ABSTRACT)
+                //.addParameter(String.class,"route")
+                .build();
+
+        /*if(factoryAnnotationClass.getType() == null){
+
+
             create = MethodSpec.methodBuilder("create"+className)
                     .returns(TypeName.get(factoryAnnotationClass.getTypeMirror()))
                     .addModifiers(Modifier.PUBLIC,Modifier.ABSTRACT)
@@ -63,7 +103,7 @@ public class GenerateCodeTool {
                     .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                     //.addParameter(String.class, "route")
                     .build();
-        }
+        }*/
 
         TypeSpec storeInterface = TypeSpec.interfaceBuilder(className
                 +STORE_SUFFIX)
@@ -89,33 +129,112 @@ public class GenerateCodeTool {
         String className = factoryAnnotationClass.getSimpleTypeName();
 
 
+
         MethodSpec create = null;
+        MethodSpec nonParaCreate = null;
         ClassName productSuperClassName =
                 ClassName.get(factoryAnnotationClass.getPackageName()
                         ,factoryAnnotationClass.getQualifiedSuperClassName());
 
 
 
-        create = MethodSpec.methodBuilder("create"+className)
+        /*create = MethodSpec.methodBuilder("create"+className)
                 .returns(productSuperClassName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
 
                 .addStatement("return new $T()",TypeName.get(factoryAnnotationClass.getTypeElement().asType()))
 
-                .build();
+                .build();*/
 
+
+        List<ParameterSpec> parameterSpecList = new ArrayList<>();
+        List<String> parameterStringList = new ArrayList<>();
+        for(int i =0;i<factoryAnnotationClass.getParametersQualifiedName().size();i++){
+
+            String parameterQualifiedName = factoryAnnotationClass.getParametersQualifiedName().get(i);
+            String parameterSimpleName = factoryAnnotationClass.getParametersSimpleName().get(i);
+
+            parameterSimpleName = parameterSimpleName.substring(0,1).toLowerCase()
+                    +parameterSimpleName.substring(1);
+
+            parameterSpecList.add(ParameterSpec.builder(TypeName.get(elementUtils
+                            .getTypeElement(parameterQualifiedName).asType())
+                ,parameterSimpleName)
+                    .build());
+            parameterStringList.add(parameterSimpleName);
+        }
+
+
+
+
+        List<MethodSpec> methodSpecList = new ArrayList<>();
+        if(parameterSpecList.size()>0){
+
+            StringBuilder parameterStringBuilder =new StringBuilder();
+            for(int i =0;i<parameterStringList.size();i++){
+                if(i!=0){
+                    parameterStringBuilder.append(",");
+                }
+                parameterStringBuilder.append(parameterStringList.get(i));
+
+            }
+
+            create = MethodSpec.methodBuilder("create"+className)
+                    .returns(productSuperClassName)
+                    //.addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameters(parameterSpecList)
+                    .addStatement("return new $T("+parameterStringBuilder.toString()+")",TypeName.get(factoryAnnotationClass.getTypeElement().asType())
+                            )
+
+                    .build();
+            nonParaCreate = MethodSpec.methodBuilder("create"+className)
+                    .returns(productSuperClassName)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+
+                    .addStatement("return null")
+
+                    .build();
+            methodSpecList.add(create);
+
+            methodSpecList.add(nonParaCreate);
+
+        }else{
+            create = MethodSpec.methodBuilder("create"+className)
+                    .returns(productSuperClassName)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+
+                    .addStatement("return new $T()",TypeName.get(factoryAnnotationClass.getTypeElement().asType()))
+
+                    .build();
+            methodSpecList.add(create);
+        }
+
+
+
+
+
+
+        String superClassNameString = factoryAnnotationClass.getSimpleTypeName()+STORE_SUFFIX;
 
         ClassName superClassName = ClassName.get(factoryAnnotationClass.getPackageName()
-                ,factoryAnnotationClass.getSimpleTypeName()+STORE_SUFFIX);
+                ,superClassNameString);
 
 
-        TypeSpec storeInterface = TypeSpec.classBuilder(className
-                +STORE_SUFFIX+factoryAnnotationClass.getRoute())
+
+        className = className
+                +STORE_SUFFIX+factoryAnnotationClass.getRoute();
+        if(className.startsWith("I")){
+            className = StringUtils.substring(className,1);
+        }
+        TypeSpec storeInterface = TypeSpec.classBuilder(className)
                 .addJavadoc(WARNING_TIPS)
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(superClassName)
-                .addMethod(create)
+                .addMethods(methodSpecList)
                 .build();
 
 

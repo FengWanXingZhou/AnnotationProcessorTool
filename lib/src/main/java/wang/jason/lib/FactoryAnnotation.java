@@ -11,4 +11,6 @@ public @interface FactoryAnnotation {
 
     Class type();
 
+    Class[] params() default {Void.class};
+
 }

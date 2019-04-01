@@ -76,7 +76,8 @@ public class FactoryProcessor extends AbstractProcessor {
                     return true;
                 }
                 TypeElement typeElement = (TypeElement)element;
-                FactoryAnnotationClass factoryAnnotationClass = new FactoryAnnotationClass(mElementsUtil,typeElement);
+                FactoryAnnotationClass factoryAnnotationClass =
+                        new FactoryAnnotationClass(mElementsUtil,typeElement,mMessager);
                 //log(element,"package name:"+factoryAnnotationClass.getPackageName());
 
 
@@ -131,7 +132,7 @@ public class FactoryProcessor extends AbstractProcessor {
             error(rootElement, "class %s is not public ", rootElement.getSimpleName());
             return false;
         }
-        boolean construct = false;
+        /*boolean construct = false;
         for(Element element:rootElement.getEnclosedElements()){
             if(element.getKind() == CONSTRUCTOR){
 
@@ -154,7 +155,7 @@ public class FactoryProcessor extends AbstractProcessor {
             error(rootElement, "class %s doesn't have public non-parameter constructor",
                     rootElement.getSimpleName());
             return false;
-        }
+        }*/
 
         boolean findValidParentInterface = false;
 
@@ -186,6 +187,7 @@ public class FactoryProcessor extends AbstractProcessor {
             return false;
         }
         TypeElement rootTypeElement = (TypeElement) rootElement;
+
 
 
         for(TypeMirror superTypeMirror:rootTypeElement.getInterfaces()){
