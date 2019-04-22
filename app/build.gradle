@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 apply plugin: 'kotlin-android'
 
@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "wang.jason.annotationprocessortool"
+        //applicationId "wang.jason.annotationprocessortool"
         minSdkVersion 26
         targetSdkVersion 28
         versionCode 1
@@ -23,11 +23,13 @@ android {
 }
 
 dependencies {
-    implementation project(':lib')
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    //annotationProcessor "wang.jason.lib"
+    implementation project(':lib')
     annotationProcessor project(":lib")
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
